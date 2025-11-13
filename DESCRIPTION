@@ -1,0 +1,17 @@
+Package: m6APrediction
+Title: Predict m6A Modification Using Random Forest Models
+Version: 1.0.0
+Authors@R:
+    person("Yiying", "Zhang", email = "Yiying.Zhang23@student.xjtlu.edu.cn", role = c("aut", "cre"))
+Description: Provides utilities to encode DNA 5-mers and predict m6A
+    modification probabilities and statuses using trained random forest models.
+License: MIT
+Depends: R (>= 3.5.0)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    randomForest,
+    stats
+URL: https://github.com/Erin20251111/m6APrediction
+BugReports: https://github.com/Erin20251111/m6APrediction/issues
