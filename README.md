@@ -4,50 +4,67 @@ editor_options:
     wrap: 72
 ---
 
-**m6APrediction: Predict m6A Modification Using Random Forest Models**
+**m6APrediction: Predict m6A RNA Modifications Using Random Forest
+Models**
 
-## Purpose
+## Overview
 
-`m6APrediction` provides utilities to: - encode DNA 5-mers into
-per-position factor features; and - predict m6A modification probability
-and status using a trained random forest model.
+`m6APrediction` is an R package for predicting m6A RNA modification
+sites using a trained Random Forest classifier.\
+It provides tools to:
 
-It exposes two user-facing functions: - `prediction_multiple()` for
-batch predictions on a data.frame - `prediction_single()` for a single
-observation
+-   encode DNA 5-mer sequences into per-position categorical features\
+-   perform m6A probability prediction for both single observations and
+    large batches\
+-   return probability and binary m6A status (`Positive` / `Negative`)
+
+This package is designed for the BIO215 practical sessions and serves as
+a template for developing small machine-learning R packages.
+
+The package exposes two main user functions:
+
+-   **`prediction_multiple()`** — run predictions on a `data.frame`\
+-   **`prediction_single()`** — convenient wrapper for predicting one
+    observation
+
+------------------------------------------------------------------------
 
 ## Installation
 
-Install from GitHub with either `devtools` or `remotes`. Replace
-`username` with your GitHub handle if different.
+Install the development version directly from GitHub:
 
 ``` r
-# install.packages("devtools")   # if not installed
-devtools::install_github("username/m6APrediction")
+# If devtools is not installed:
+# install.packages("devtools")
 
-# or with remotes
+devtools::install_github("Erin20251111/m6APrediction")
+
+# Alternatively, using remotes:
 # install.packages("remotes")
-# remotes::install_github("username/m6APrediction")
+# remotes::install_github("Erin20251111/m6APrediction")
 ```
+
+------------------------------------------------------------------------
 
 ## Quick start
 
-After installation, load the package and run predictions using the
-bundled example model and data in `inst/extdata/`.
+The package includes an example Random Forest model and input features
+in `inst/extdata/`. You can run a full prediction workflow as follows:
 
 ``` r
 library(m6APrediction)
 
-# Load example model and input data shipped with the package
+# Load bundled model and example dataset
 rf_fit <- readRDS(system.file("extdata", "rf_fit.rds", package = "m6APrediction"))
 df <- read.csv(system.file("extdata", "m6A_input_example.csv", package = "m6APrediction"))
 
-# 1) Predict for multiple observations
+# ---- 1) Predict for multiple observations ----
 out <- prediction_multiple(rf_fit, df, positive_threshold = 0.6)
 head(out)
 
-# 2) Predict for a single observation (using the first row of df)
+# ---- 2) Predict for a single observation ----
 r1 <- df[1, ]
+
 prediction_single(
   ml_fit = rf_fit,
   gc_content = r1$gc_content,
@@ -61,37 +78,60 @@ prediction_single(
 )
 ```
 
+------------------------------------------------------------------------
+
+## Model Design
+
+`prediction_multiple()` automatically:
+
+-   checks input feature columns
+-   encodes 5-mer sequences into per-nucleotide factor features
+    (`nt_pos1`…`nt_pos5`)
+-   standardizes factor levels for `RNA_type` and `RNA_region`
+-   retrieves the `"Positive"` probability using
+    `predict(..., type = "prob")`
+-   assigns binary status based on a user-defined threshold
+
+`prediction_single()` is a thin wrapper that converts one set of
+features into a one-row data.frame and calls `prediction_multiple()`
+internally.
+
+------------------------------------------------------------------------
+
 ## Model performance (ROC / PRC)
 
-You can showcase the model performance with ROC and Precision-Recall
-curves from Practical 4. Place your images in a path that GitHub can
-render, e.g. `man/figures/roc.png` and `man/figures/prc.png` or
-`inst/images/roc.png` and `inst/images/prc.png`. Then reference them
-below:
+To visualize classifier performance, include ROC and Precision–Recall
+curves generated in Practical 4.
+
+A common location for figures is:
 
 ![ROC Curve](man/figures/roc.png)
 
 ![PRC Curve](man/figures/prc.png)
 
-If you prefer to keep figures under `inst/images`, update the paths in
-the markdown accordingly:
+and referenced as:
 
 ``` markdown
 ![ROC Curve](man/figures/roc.png)
 ![PRC Curve](man/figures/prc.png)
 ```
 
-## Reproducible docs
+------------------------------------------------------------------------
 
-If you develop locally:
+## Development Notes
+
+Use the following workflow when modifying the package:
 
 ``` r
-devtools::document()  # regenerate Rd files and NAMESPACE
-devtools::load_all()  # reload package
-devtools::check()     # run checks and examples
+devtools::document()  # regenerate Rd documentation
+devtools::load_all()  # load the development version of the package
+devtools::check()     # run R CMD check
 ```
+
+------------------------------------------------------------------------
 
 ## Citation
 
-If you use `m6APrediction` in your work, please cite this repository and
-package version.
+If you use this package in academic or coursework settings, please cite:
+
+m6APrediction (2025). GitHub: Erin20251111/m6APrediction.
